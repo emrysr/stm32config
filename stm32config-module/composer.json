@@ -1,0 +1,27 @@
+{
+    "name": "emoncms/stm32config",
+    "description": "Emoncms configuration module for raspberry pi based installations of emoncms with an stm32 based emonBase",
+    "type": "library",
+    "keywords": [
+        "stm32",
+        "rpi3",
+        "emoncms",
+        "module",
+        "python",
+        "vuejs"
+    ],
+    "license": "AGPL-3.0",
+    "authors": [
+        {
+            "name": "Emrys",
+            "role": "Developer",
+            "email": "emrys@openenergymonitor.org",
+            "homepage": "https://openenergymonitor.org/"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/emoncms/stm32config/issues/",
+        "source": "https://github.com/emoncms/stm32config/"
+    },
+    "require": {}
+}
