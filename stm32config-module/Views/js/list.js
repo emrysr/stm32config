@@ -36,9 +36,9 @@ Vue.component("modal", {
         entry: function() {
             var match;
             for(let n in this.gridData) {
-                let entry = this.gridData[n];
-                if (this.selected && (entry.id.toString() === this.selected.toString())) {
-                    match = entry;
+                let item = this.gridData[n];
+                if (this.selected && (item.key.toString() === this.selected.toString())) {
+                    match = item;
                 }
             }
             return match;
@@ -128,7 +128,7 @@ Vue.component("modal", {
             var start = new Date();
 
             var request = stm32config.sample({
-                id: vm.selected
+                key: vm.selected
             })
             .done(function(response,status,xhr) {
                 // cache api responses
@@ -185,9 +185,9 @@ Vue.component("modal", {
             //todo: 
         },
         // return js api response from getting property prop
-        get: function(prop, id) {
+        get: function(prop, key) {
             if (!prop) prop = '';
-            if (!id) id = '';
+            if (!key) key = '';
             var vm = this;
             // show the loading animation
             this.loading = true;
@@ -195,7 +195,7 @@ Vue.component("modal", {
             // send the ajax request and respond to results
             var request = stm32config.get({
                 properties: prop,
-                id: id
+                key: key
             }).done(function(response,status,xhr) {
                 // set the vue machine (vm) variables to the returned api response values
                 // eg:
@@ -221,9 +221,9 @@ Vue.component("modal", {
             return request;
         },
         // return js api response from setting property prop
-        set: function(prop, id, value) {
+        set: function(prop, key, value) {
             if (!prop) prop = '';
-            if (!id) id = '';
+            if (!key) key = '';
             if (!value) value = '';
             var vm = this;
             // show the loading animation
@@ -233,7 +233,7 @@ Vue.component("modal", {
             var request = stm32config.set({
                 properties: prop,
                 values: value,
-                id: id
+                key: key
             }).done(function(response,status,xhr) {
                 // set the vue machine (vm) variables to the returned api response values
                 // eg:
@@ -328,10 +328,10 @@ var app = new Vue({
                         let vm = app;
                         event.preventDefault();
                         // toggle on/off if already selected
-                        if(vm.selected == item.id) {
+                        if(vm.selected == item.key) {
                             vm.selected = '';
                         } else {
-                            vm.selected = parseInt(item.id);
+                            vm.selected = item.key;
                         }
 
                     } catch (error) {
@@ -463,8 +463,8 @@ var app = new Vue({
                 for(var i in response.data) {
                     var item = response.data[i];
                     if(typeof item === 'object') {
-                        item.view = path + 'stm32config/view?id=' + item.id;
-                        item.edit = path + 'stm32config/edit?id=' + item.id;
+                        item.view = path + 'stm32config/view?key=' + item.key;
+                        item.edit = path + 'stm32config/edit?key=' + item.key;
                     }
                 };
                 vm.gridData = response.data;
@@ -518,10 +518,10 @@ var app = new Vue({
         realPower: function(event, item, property, value, success, error){
             // toggle public status
             try {
-                var id = item.id
+                var key = item.key
                 var field = 'realPower';
                 var value = !item[field];
-                this.Set_field(event, item, id, field, value, function() {
+                this.Set_field(event, item, key, field, value, function() {
                     item[field] = value;
                 });
             } catch (error) {
@@ -531,10 +531,10 @@ var app = new Vue({
         actualPower: function(event, item, property, value, success, error){
             // toggle public status
             try {
-                var id = item.id
+                var key = item.key
                 var field = 'actualPower';
                 var value = !item[field];
-                this.Set_field(event, item, id, field, value, function() {
+                this.Set_field(event, item, key, field, value, function() {
                     item[field] = value;
                 });
             } catch (error) {
@@ -544,10 +544,10 @@ var app = new Vue({
         current: function(event, item, property, value, success, error){
             // toggle public status
             try {
-                var id = item.id
+                var key = item.key
                 var field = 'current';
                 var value = !item[field];
-                this.Set_field(event, item, id, field, value, function() {
+                this.Set_field(event, item, key, field, value, function() {
                     item[field] = value;
                 });
             } catch (error) {
@@ -590,7 +590,7 @@ var app = new Vue({
          * @param Function error
          * @return void
          */
-        Set_field: function(event, item, id, field, value, success, error) {
+        Set_field: function(event, item, key, field, value, success, error) {
             // sanitize input
             // @todo: more work could be done to check all the possible inputs
             switch(typeof value) {
@@ -600,17 +600,17 @@ var app = new Vue({
                 default:
                     _value = value;
             }
-            _debug.log('#app:Set_field()', {item, id, field, _value})
+            _debug.log('#app:Set_field()', {item, key, field, _value})
 
             // set the stm32config value calling success() or error() on completion
-            stm32config.set(field, id, _value).then(success, error);
+            stm32config.set(field, key, _value).then(success, error);
         },
         /**
          * wait for pause in user input before sending data to server
          */
         Set_field_delayed: function(event, item, property, value, success, error){
             var vm = this;
-            var timeout_key = item.id+'_'+property;
+            var timeout_key = item.key + "_" + property;
             window.clearTimeout(this._timeouts[timeout_key]);
             this._timeouts[timeout_key] = window.setTimeout( function() {
                 // call set field with parameters and callback functions
@@ -618,11 +618,11 @@ var app = new Vue({
                 // for fast servers you dont need this, as the save happens before you see it
                 saving = window.setTimeout(function(){
                     vm.Notify({
-                        'title': _('Saving')
+                        title: _("Saving")
                     }, true)
                 }, vm.wait)
 
-                vm.Set_field(event, item, item.id, property, value,
+                vm.Set_field(event, item, item.key, property, value,
                     // on success
                     function(data, message, xhr){
                         // on succesful save ...

@@ -220,4 +220,4 @@ function getTranslations(){
 <?php echo sprintf('<script src="%s%s?v=%s"></script>', $path, "Lib/gridjs/grid.js", $v); ?>
 <?php include_once("Lib/gridjs/grid.html"); ?>
 <!-- vuejs templates -->
-<?php echo sprintf('<script src="%s%s?v=%s" data-selected="%s"></script>', $path, "Modules/stm32config/Views/js/list.js", $v, $id); ?>
+<?php echo sprintf('<script src="%s%s?v=%s" data-selected="%s"></script>', $path, "Modules/stm32config/Views/js/list.js", $v, $key); ?>

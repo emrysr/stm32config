@@ -68,7 +68,7 @@ eot;
         // todo: while loop to test for connection until connected
 
         // todo: santize inputs
-        $id = $params['id'];
+        $key = $params['key'];
         $properties = $params['properties'];
         $values = $params['values'];
 
@@ -76,7 +76,7 @@ eot;
         $property = $properties;
         $value = $values;
         $command = <<<eot
-$this->python $this->api --connection=$this->connection --action=SET --property=$property --id=$id --value=$value --json
+$this->python $this->api --connection=$this->connection --action=SET --key=$key --property=$property --value=$value --json
 eot;
         $response = `$command`;
         
@@ -96,13 +96,13 @@ eot;
         // todo: while loop to test for connection until connected
         
         // todo: santize inputs
-        $id = $params['id'];
+        $key = $params['key'];
         $properties = $params['properties'];
 
         // @todo loop through multiple set requests as single requests;
         $property = $properties;
         $command = <<<eot
-$this->python $this->api --connection=$this->connection --action=GET --property=$property --id=$id --json
+$this->python $this->api --connection=$this->connection --action=GET --key=$key --property=$property --json
 eot;
         $response = `$command`;
         
@@ -131,13 +131,13 @@ eot;
         // todo: while loop to test for connection until connected
         
         // todo: santize inputs
-        $id = $params['id'];
+        $key = $params['key'];
         $properties = $params['properties'];
 
         // @todo loop through multiple set requests as single requests;
         $property = $properties;
         $command = <<<eot
-$this->python $this->api --connection=$this->connection --action=SAMPLE --id=$id --json
+$this->python $this->api --connection=$this->connection --action=SAMPLE --key=$key --json
 eot;
         $response = `$command`;
         

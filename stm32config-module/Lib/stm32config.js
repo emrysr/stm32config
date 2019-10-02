@@ -39,7 +39,7 @@ var stm32config = {
         return stm32config._fetch({
             url: path + "stm32config/set.json",
             data: {
-                id: options.id,
+                key: options.key,
                 properties: options.properties,
                 values: options.values,
             }
@@ -54,7 +54,7 @@ var stm32config = {
         return stm32config._fetch({
             url: path + "stm32config/get.json",
             data: {
-                id: options.id,
+                key: options.key,
                 properties: options.properties
             }
         });
@@ -64,7 +64,7 @@ var stm32config = {
         return stm32config._fetch({
             url: path + "stm32config/sample.json",
             data: {
-                id: options.id
+                key: options.key
             }
         });
     },

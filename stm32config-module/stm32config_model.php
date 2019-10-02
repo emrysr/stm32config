@@ -81,9 +81,9 @@ class Stm32Config
     }
 
     /**
-     * get the property values of an item by id
+     * get the property values of an item by key
      *
-     * @param object $params {properties,id}
+     * @param object $params {properties,key}
      * @return void
      */
     public function get($params)
@@ -117,7 +117,7 @@ class Stm32Config
 
             if($api_response['success']) {
                 $res["property"] = $api_response['property'];
-                $res["id"] = $api_response['id'];
+                $res["key"] = $api_response['key'];
                 $res["connection"] = $api_response['connection'];
 
                 $response['data'] = $api_response['data'];
@@ -140,9 +140,9 @@ class Stm32Config
     }
     
     /**
-     * set the property values of an item by id
+     * set the property values of an item by key
      *
-     * @param object $params {properties,values,id}
+     * @param object $params {properties,values,key}
      * @return void
      */
     public function set($params)
@@ -177,7 +177,7 @@ class Stm32Config
             if($api_response['success']) {
                 $res["property"] = $api_response['property'];
                 $res["value"] = $api_response['value'];
-                $res["id"] = $api_response['id'];
+                $res["key"] = $api_response['key'];
                 $res["connection"] = $api_response['connection'];
 
                 $response['data'] = $api_response['data'];
@@ -199,9 +199,9 @@ class Stm32Config
     }
     
     /**
-     * get the property values of an item by id
+     * get the property values of an item by key
      *
-     * @param object $params {properties,id}
+     * @param object $params {properties,key}
      * @return void
      */
     public function sample($params)
@@ -234,7 +234,7 @@ class Stm32Config
             $response = array();
 
             if($api_response['success']) {
-                $res["id"] = $api_response['id'];
+                $res["key"] = $api_response['key'];
                 $res["connection"] = $api_response['connection'];
 
                 $response['data'] = $api_response['data'];

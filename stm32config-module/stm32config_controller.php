@@ -33,7 +33,7 @@ function stm32config_controller()
         if ($route->action === '' || $route->action === 'view') {
             $result = sprintf('<link href="%s%s?v=%s" rel="stylesheet">', $path, "Modules/stm32config/Views/css/stm32config.css", $v);
             $result .= sprintf('<script src="%s%s?v=%s"></script>', $path, "Modules/stm32config/Lib/stm32config.js", $v);
-            $result .= view("Modules/stm32config/Views/list.php", array('path' => $path, 'v' => $v, 'id' => get('id')));
+            $result .= view("Modules/stm32config/Views/list.php", array('path' => $path, 'v' => $v, 'key' => get('key')));
             return $result;
         }
     }
@@ -45,10 +45,10 @@ function stm32config_controller()
         }
         elseif ($route->action === 'set') {
             $properties = get('properties');
-            $id = get('id');
+            $key = get('key');
             $values = get('values');
             $params = array(
-                'id' => $id,
+                'key' => $key,
                 'properties' => $properties,
                 'values' => $values
             );
@@ -56,18 +56,18 @@ function stm32config_controller()
         }
         elseif ($route->action === 'get') {
             $properties = get('properties');
-            $id = get('id');
+            $key = get('key');
             $params = array(
-                'id' => $id,
+                'key' => $key,
                 'properties' => $properties
             );
             return $config->get($params);
         }
         elseif ($route->action === 'sample') {
             $properties = get('properties');
-            $id = get('id');
+            $key = get('key');
             $params = array(
-                'id' => $id,
+                'key' => $key,
                 'properties' => $properties
             );
             return $config->sample($params);

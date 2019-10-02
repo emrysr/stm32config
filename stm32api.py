@@ -21,8 +21,8 @@ def main(argv):
   quiet = False
 
   try:
-    # example input: ./stm32api.py --connection=set_0001 --action=SET --id=B1 --value=abc --property=size --json
-    opts, args = getopt.getopt(argv, "c:a:i:p:v:jhdq", ["connection=", "action=", "id=", "property=", "value=", "json", "help", "version", "debug", "quiet"])
+    # example input: ./stm32api.py --connection=set_0001 --action=SET --key=B1 --value=abc --property=size --json
+    opts, args = getopt.getopt(argv, "c:a:i:p:v:jhdq", ["connection=", "action=", "key=", "property=", "value=", "json", "help", "version", "debug", "quiet"])
     
     # parse 
     for opt, arg in opts:
@@ -36,8 +36,8 @@ def main(argv):
         action = arg
       elif opt in ("-q", "--quiet"):
         quiet = True
-      elif opt in ("-i", "--id"):
-        options['id'] = arg
+      elif opt in ("-k", "--key"):
+        options['key'] = arg
       elif opt in ("-v", "--value"):
         options['value'] = arg
       elif opt in ("-p", "--property"):
@@ -58,13 +58,13 @@ def main(argv):
         message = 'List all'
         if (True) :
           options['data'] = [
-            {"id":1,"port":"CT1","name":"CT1","calibration":"SCT013","voltage":"v1","power":"200W","realPower":True,"actualPower":False,"current":False},
-            {"id":2,"port":"CT2","name":"CT2","calibration":"SCT013","voltage":"v3","power":"100W","realPower":False,"actualPower":True,"current":False},
-            {"id":3,"port":"CT3","name":"CT3","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":False,"current":True},
-            {"id":4,"port":"CT4","name":"CT4","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":False,"current":False},
-            {"id":5,"port":"CT5","name":"CT5","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":True,"current":False},
-            {"id":6,"port":"CT6","name":"CT6","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":True,"current":False},
-            {"id":7,"port":"CT7","name":"CT7","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":False,"current":False}
+            {"id":1,"key":"CT1","name":"CT1","calibration":"SCT013","voltage":"v1","power":"200W","realPower":True,"actualPower":False,"current":False},
+            {"id":2,"key":"CT2","name":"CT2","calibration":"SCT013","voltage":"v3","power":"100W","realPower":False,"actualPower":True,"current":False},
+            {"id":3,"key":"CT3","name":"CT3","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":False,"current":True},
+            {"id":4,"key":"CT4","name":"CT4","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":False,"current":False},
+            {"id":5,"key":"CT5","name":"CT5","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":True,"current":False},
+            {"id":6,"key":"CT6","name":"CT6","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":True,"current":False},
+            {"id":7,"key":"CT7","name":"CT7","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":False,"current":False}
           ]
           options['success'] = True
         else :
@@ -78,7 +78,7 @@ def main(argv):
       elif action == 'GET':
         # todo: get the value from the chip and set key/value to options['data']
         message = 'Value of property returned'
-        options['data'] = [{ 'id':options['id'], options['property']: "%s" % datetime.datetime.now() }]
+        options['data'] = [{ 'key':options['key'], options['property']: "%s" % datetime.datetime.now() }]
         # fake delay to simulate time taken to do the sampling
         time.sleep(1.2)
 
@@ -183,10 +183,10 @@ def main(argv):
       print """
   Arguments:
     -c [--connection=]  unique identifier for request. Required.
-    -p [--property=]    data item property to get or set
-    -d [--value=]       data item value to set
+    -p [--property=]    key property to get or set
+    -d [--value=]       key's property value to set
     -a [--action=]      action to perform
-    -i [--id=]          unique id of data item to work with
+    -k [--key=]         unique id of input/output item to work with
     -j [--json]         return output as JSON. All responses have {success: bool, message: string, data: mixed}
                         Returned values held in "data" property.
     -d [--debug]        return version number
@@ -201,11 +201,11 @@ def main(argv):
     VERSION - get version
 
   Examples:
-    Get the value of the property "XYZ" of item "#12". Return results as "JSON" data. Identified as "AAAA"
-        ./stm32api.py -cAAAA -aGET -i12 -pXYZ --json
+    Get the value of the property "power" of item "CT2". Return results as "JSON" data. Identified as "AAAA"
+        ./stm32api.py -cAAAA --action=GET --key=CT2 --property=power --json
 
-    Set the value of the property "size" of item "0x1C31" to "0x13B1". Return results as "JSON" data. Identified as "user_0001"
-        ./stm32api.py --connection=user_0001 --action=SET --id=0x13B1 --value=abc --property=size --json
+    Set the value of the property "burdon" of item "VT1" to "20". Return results as "JSON" data. Identified as "user_0001"
+        ./stm32api.py --connection=user_0001 --action=SET --key=VT1 --value=20 --property=burdon --json
         
     Get a list of all properties. Response tagged with id "1234"
         ./stm32api.py -c 1234 --action=LIST
