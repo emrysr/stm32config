@@ -57,15 +57,25 @@ def main(argv):
         # todo: get list of values. (TBC)
         message = 'List all'
         if (True) :
-          options['data'] = [
-            {"id":1,"key":"CT1","name":"CT1","calibration":"SCT013","voltage":"v1","power":"200W","realPower":True,"actualPower":False,"current":False},
-            {"id":2,"key":"CT2","name":"CT2","calibration":"SCT013","voltage":"v3","power":"100W","realPower":False,"actualPower":True,"current":False},
-            {"id":3,"key":"CT3","name":"CT3","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":False,"current":True},
-            {"id":4,"key":"CT4","name":"CT4","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":False,"current":False},
-            {"id":5,"key":"CT5","name":"CT5","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":True,"current":False},
-            {"id":6,"key":"CT6","name":"CT6","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":True,"current":False},
-            {"id":7,"key":"CT7","name":"CT7","calibration":"SCT013","voltage":None,"power":"30W","realPower":False,"actualPower":False,"current":False}
-          ]
+          options['data'] = {
+              "ct": [
+                {"id":1,"key":"CT1","name":"CT1","type":"SCT013","phase":"v1","power":"200W","realPower":True,"actualPower":False,"current":False},
+                {"id":2,"key":"CT2","name":"CT2","type":"SCT013","phase":"v3","power":"100W","realPower":False,"actualPower":True,"current":False},
+                {"id":3,"key":"CT3","name":"CT3","type":"SCT013","phase":None,"power":"30W","realPower":False,"actualPower":False,"current":True},
+                {"id":4,"key":"CT4","name":"CT4","type":"SCT013","phase":None,"power":"30W","realPower":False,"actualPower":False,"current":False},
+                {"id":5,"key":"CT5","name":"CT5","type":"SCT013","phase":None,"power":"30W","realPower":False,"actualPower":True,"current":False},
+                {"id":6,"key":"CT6","name":"CT6","type":"SCT013","phase":None,"power":"30W","realPower":False,"actualPower":True,"current":False},
+                {"id":7,"key":"CT7","name":"CT7","type":"SCT013","phase":None,"power":"30W","realPower":False,"actualPower":False,"current":False},
+                {"id":8,"key":"CT8","name":"CT8","type":"SCT013","phase":None,"power":"30W","realPower":False,"actualPower":False,"current":False},
+                {"id":9,"key":"CT9","name":"CT9","type":"SCT013","phase":None,"power":"30W","realPower":False,"actualPower":False,"current":False},
+              ],
+              "vt": [
+                {"id":2,"key":"VT2","name":"VT2","vrms":True,"offset": 0},
+                {"id":3,"key":"VT3","name":"VT2","vrms":False,"offset": 0},
+                {"id":1,"key":"VT1","name":"VT1","vrms":True,"offset": 0},
+              ]
+          }
+          
           options['success'] = True
         else :
           options['data'] = None

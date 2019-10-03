@@ -1,5 +1,5 @@
 <div class="container w-auto">
-    <div id="app">
+    <div id="app" style="max-width: 50rem">
         <div class="alert" :class="{'alert-warning':true}" v-if="status.message" v-cloak>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -24,17 +24,18 @@
                 </div>
             </form>
         </div>
+        <h3>CT Inputs</h3>
         <!-- custom component to display grid data-->
-        <grid-data :grid-data="gridData"
-            :columns="gridColumns"
-            :filter-key="searchQuery"
-            :caption="status.title"
+        <grid-data :grid-data="gridData.ct"
+        :columns="gridColumns.ct"
+        :filter-key="searchQuery"
+        :caption="status.title"
             :class-names="classNames"
             :selected="selected"
             @update:total="status=arguments[0]"
-        ></grid-data>
+            ></grid-data>
 
-        <modal v-if="selected!==''":grid-data="gridData" 
+        <modal v-if="selected!==''":grid-data="gridDataCT" 
             :samples="samples"
             :selected="selected" 
             @modal:hide = "selected = ''"
@@ -44,6 +45,16 @@
             @loading = "loading = true"
             @loaded = "loading = false"
         ></modal>
+
+        <h3>VT Inputs</h3>
+        <grid-data :grid-data="gridData.vt"
+        :columns="gridColumns.vt"
+        :filter-key="searchQuery"
+        :caption="status.title"
+            :class-names="classNames"
+            :selected="selected"
+            @update:total="status=arguments[0]"
+            ></grid-data>
 
     </div>
 

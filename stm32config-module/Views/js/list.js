@@ -316,95 +316,115 @@ var app = new Vue({
         selected: document.currentScript.dataset.selected, // passed as [data-selected=""] in the <script> tag that loads this page
         searchQuery: '',
         samples: {},
-        gridData: [],
+        gridData: {
+            vt: [],
+            ct: []
+        },
         gridColumns: { // each gridData[] item property has a matching gridColumns property name
-            view: {
-                icon: '#icon-keyboard_arrow_right',
-                noHeader: true,
-                link: true,
-                title: _('View this stm32config'),
-                handler: function(event, item, property, value, success, error, always) {
-                    try {
-                        let vm = app;
-                        event.preventDefault();
-                        // toggle on/off if already selected
-                        if(vm.selected == item.key) {
-                            vm.selected = '';
-                        } else {
-                            vm.selected = item.key;
-                        }
+            ct: {
+                view: {
+                    icon: '#icon-keyboard_arrow_right',
+                    noHeader: true,
+                    link: true,
+                    title: _('View this stm32config'),
+                    handler: function(event, item, property, value, success, error, always) {
+                        try {
+                            let vm = app;
+                            event.preventDefault();
+                            // toggle on/off if already selected
+                            if(vm.selected == item.key) {
+                                vm.selected = '';
+                            } else {
+                                vm.selected = item.key;
+                            }
 
-                    } catch (error) {
-                        _debug.error (_('JS Error'), property, error, arguments);
+                        } catch (error) {
+                            _debug.error (_('JS Error'), property, error, arguments);
+                        }
+                    },
+                    messages: {
+                        success: _('Saved'),
+                        error: _('Error'),
+                        always: _('Done')
                     }
                 },
-                messages: {
-                    success: _('Saved'),
-                    error: _('Error'),
-                    always: _('Done')
-                }
-            },
-            name: {
-                sort: true,
-                input: true,
-            },
-            calibration: {
-                sort: true,
-                title: _('calibration'),
-                values: [
-                    {name: 'Option 1 +4.3', value: "0001"},
-                    {name: 'SCT013 +5', value: "SCT013"},
-                    {name: 'Option 3 +2.1', value: "0003"},
-                    {name: 'Option 4 -0.5', value: "0004"}
-                ]
-            },
-            voltage: {
-                sort: true,
-                title: _('voltage'),
-                values: [
-                    {name: 'V1', value: "v1"},
-                    {name: 'V2', value: "v2"},
-                    {name: 'V3', value: "v3"},
-                    {name: 'V4', value: "v4"},
-                    {name: 'V5', value: "v5"},
-                ]
-            },
-            power: {
-                sort: true,
-                noHeader: true,
-                title: _('power'),
-                hideNarrow: true
-            },
-            realPower: {
-                label: 'RP',
-                sort: true,
-                noHeader: true,
-                title: _('Real Power (RP) as input'),
-                handler: function(event, item, property, value, success, error, always) {
-                    item[property] = !item[property]
-                }
-            },
-            actualPower: {
-                label: 'AP',
-                sort: true,
-                noHeader: true,
-                title: _('Actual Power (AP) as input'),
-                handler: function(event, item, property, value, success, error, always) {
-                    item[property] = !item[property]
-                }
-            },
-            current: {
-                label: 'I',
-                sort: true,
-                noHeader: true,
-                title: _('Current (I) as input'),
-                handler: function(event, item, property, value, success, error, always) {
-                    item[property] = !item[property]
+                name: {
+                    sort: true,
+                    input: true,
                 },
-                messages: {
-                    success: _('Current Input Saved'),
-                    error: _('Error, Current Input Not Saved'),
-                    always: _('Done')
+                type: {
+                    sort: true,
+                    title: _('calibration'),
+                    values: [
+                        {name: 'Option 1 +4.3', value: "0001"},
+                        {name: 'SCT013 +5', value: "SCT013"},
+                        {name: 'Option 3 +2.1', value: "0003"},
+                        {name: 'Option 4 -0.5', value: "0004"},
+                        {name: _('Custom'), value: "custom"}
+                    ]
+                },
+                phase: {
+                    sort: true,
+                    title: _('voltage'),
+                    values: [
+                        {name: 'V1', value: "v1"},
+                        {name: 'V2', value: "v2"},
+                        {name: 'V3', value: "v3"},
+                        {name: 'V4', value: "v4"},
+                        {name: 'V5', value: "v5"},
+                        {name: 'None', value: "none"},
+                    ]
+                },
+                power: {
+                    sort: true,
+                    noHeader: true,
+                    title: _('power'),
+                    hideNarrow: true
+                },
+                realPower: {
+                    label: 'RP',
+                    sort: true,
+                    noHeader: true,
+                    title: _('Real Power (RP) as input'),
+                    handler: function(event, item, property, value, success, error, always) {
+                        item[property] = !item[property]
+                    }
+                },
+                actualPower: {
+                    label: 'AP',
+                    sort: true,
+                    noHeader: true,
+                    title: _('Actual Power (AP) as input'),
+                    handler: function(event, item, property, value, success, error, always) {
+                        item[property] = !item[property]
+                    }
+                },
+                current: {
+                    label: 'I',
+                    sort: true,
+                    noHeader: true,
+                    title: _('Current (I) as input'),
+                    handler: function(event, item, property, value, success, error, always) {
+                        item[property] = !item[property]
+                    },
+                    messages: {
+                        success: _('Current Input Saved'),
+                        error: _('Error, Current Input Not Saved'),
+                        always: _('Done')
+                    }
+                }
+            },
+            vt: {
+                name: {
+                    sort: true,
+                    input: true,
+                },
+                vrms: {
+                    sort: true
+                },
+                offset: {
+                    sort: true,
+                    input: true
                 }
             }
         },
