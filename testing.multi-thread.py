@@ -5,10 +5,10 @@ Thread based version to allow simultaneous connections to the serial port and MQ
 import serial, paho.mqtt.client as mqtt, threading
 
 class SerialRead(threading.Thread):
-    def __init__(self, *iterables, baud=9600, port='/dev/ttyACM0'):
+    def __init__(self, threadID, name, baud=9600, port='/dev/ttyACM0'):
       threading.Thread.__init__(self)
-      self.threadID = iterables[0]
-      self.name = iterables[1]
+      self.threadID = threadID
+      self.name = name
 
       self.buf = bytearray()
       self.ser = None
@@ -33,18 +33,18 @@ class SerialRead(threading.Thread):
                 self.buf.extend(data)
 
     def run (self):
-        self.ser = serial.Serial(self.port, self.baud)
+        self.ser = serial.Serial(port=self.port, baudrate=self.baud, timeout=3)
         while True:
            print(self.readline().decode('utf-8').strip().split(':'))
 
 
 class MqttSub(threading.Thread):
     
-    def __init__(self, *iterables, host='localhost', port=1883, topic='', keepalive=60):
+    def __init__(self, threadID, name, host='localhost', port=1883, topic='', keepalive=60):
         threading.Thread.__init__(self)
-        self.threadID = iterables[0]
-        self.name = iterables[1]
-
+        self.threadID = threadID
+        self.name = name
+        
         self.client = None
         self.host = host
         self.port = port
