@@ -1,4 +1,6 @@
-""" class based version of testing.serial.py"""
+""" 
+Thread based version to allow simultaneous connections to the serial port and MQTT server
+"""
 
 import serial, paho.mqtt.client as mqtt, threading
 
