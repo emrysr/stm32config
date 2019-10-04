@@ -36,7 +36,7 @@ class SerialRead(threading.Thread):
            print(self.readline().decode('utf-8').strip().split(':'))
 
 
-class SubscribeMQTT(threading.Thread):
+class MqttSub(threading.Thread):
     
     def __init__(self, *iterables, host='localhost', port=1883, topic='', keepalive=60):
         threading.Thread.__init__(self)
@@ -73,8 +73,25 @@ class SubscribeMQTT(threading.Thread):
         self.client.loop_forever()
 
 # create and label threads
+
+
+
+
+"""
+Run mutliple concurrent threads
+-------------------------------
+alter the parameters for these two instances of the Threading class
+  parameters :-
+    1st is thread id
+    2nd is thread name
+
+  named :-
+  SerialRead() defaults: port='', baud=9600
+  MqttSub() defaults: host='localhost', port=1883, topic=''
+
+"""
 t1 = SerialRead(1, 'Serial Read', port='/dev/ttyACM0')
-t2 = SubscribeMQTT(2, 'MQTT Sub', topic='emoncms/stm32/request/#')
+t2 =    MqttSub(2, 'MQTT Sub',    topic='emoncms/stm32/request/#')
 
 # start threads
 t1.start()
