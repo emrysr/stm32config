@@ -1,5 +1,10 @@
 import serial, sys, logging, traceback, getopt, threading
 
+import serial_write as write 
+import serial_read as read
+import mqtt_publish as pub 
+import mqtt_subscribe as sub 
+
 def main():
     logging_init()
     serial_port = serial.Serial()

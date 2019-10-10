@@ -20,10 +20,6 @@ def main():
     ser.close()
     print ("--------------- END --------------------")
 
-
-def hello():
-    print('hello')
-
 # take loglevel as command line option eg: --log=WARN
 def logging_init():
     LOGLEVEL = logging.WARN
