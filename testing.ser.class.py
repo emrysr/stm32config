@@ -1,8 +1,8 @@
 import serial,time
 
 class Connection:
-    def __init__(self):
-        self.serial = serial.Serial('/dev/ttyACM02', 9600, timeout=2)
+    def __init__(self, port):
+        self.serial = serial.Serial(port, 9600, timeout=2)
         print("connected %s" % self.serial.write(10))
         
 class SerialWrite:
@@ -21,9 +21,9 @@ class SerialRead:
         print('reading...')
         return self.serial.read()
 
-try:
+ try:
     #serialConnection = Connection()
-    serialConnection = Connection().serial
+    serialConnection = Connection('/dev/ttyACM0').serial
     w = SerialWrite(serialConnection)
     r = SerialRead(serialConnection)
 
