@@ -16,13 +16,11 @@ clientId = 'testing4321'
 client = None
 
 def main():
-    # setup the logging scripts
-    logging_init()
     # setup the MQTT Client
     client = None
 
     try:
-        logging.debug ("------ MQTT PUBLISH -------")
+        logger.debug ("------ MQTT PUBLISH -------")
 
         client = MQTTClient(clientId, topic)
         client.on_connect = on_connect
@@ -35,31 +33,31 @@ def main():
             raise
 
     except KeyboardInterrupt:
-        logging.info ("Shutdown requested...exiting")
+        logger.info ("Shutdown requested...exiting")
     except Exception as err:
-        logging.info (err)
+        logger.info (err)
         traceback.print_exc(file=sys.stdout)
 
     if client: 
         client.disconnect()
 
-    logging.debug ("------ EXIT ------------------")
+    logger.debug ("------ EXIT ------------------")
     sys.exit(0)
 
 
 def on_connect(client, userdata, flags, rc):
-    logging.warn("MQTT broker connected")
-    logging.debug("MQTT on_connect():" + str(flags) + "result code " + str(rc))
+    logger.warn("MQTT broker connected")
+    logger.debug("MQTT on_connect():" + str(flags) + "result code " + str(rc))
     client.connected_flag=True
     client.disconnect_flag=False
     # send data if ready
     if client.topic : 
-        logging.debug(client.topic)
+        logger.debug(client.topic)
         # example of what the stm32 would respond with
         message = "1:G:VT1:V:244"
         client.publish(client.topic, message)
     else :
-        logging.debug("no topic")
+        logger.debug("no topic")
         # client.disconnect()
         raise Exception("MQTT topic not supplied")
 
@@ -95,28 +93,27 @@ class MQTTClient(mqtt.Client):
         self.topic = topic
 
     def on_connect(self, client, userdata, flags, rc):
-        logging.warn("MQTT broker connected")
-        logging.debug("MQTT on_connect():" + str(flags) + "result code " + str(rc))
+        logger.warn("MQTT broker connected")
+        logger.debug("MQTT on_connect():" + str(flags) + "result code " + str(rc))
         client.connected_flag=True
         client.disconnect_flag=False
-        print('dave')
 
     def on_publish(self, client, userdata, mid):
-        logging.warn("MQTT message published")
-        logging.debug("MQTT on_publish():" + "result code " + str(mid))
-        logging.debug("disconnecting...")
+        logger.warn("MQTT message published")
+        logger.debug("MQTT on_publish():" + "result code " + str(mid))
+        logger.debug("disconnecting...")
         client.disconnect()
 
     def on_disconnect(self, client, userdata, rc):
-        logging.warn("MQTT broker disconnected")
-        logging.debug("MQTT on_disconnect():" + "result code " + str(rc))
+        logger.warn("MQTT broker disconnected")
+        logger.debug("MQTT on_disconnect():" + "result code " + str(rc))
         client.connected_flag=False
         client.disconnect_flag=True
         client.loop_stop()
 
 
 # take loglevel as command line option eg: --log=WARN
-def logging_init():
+def logging_init(name):
     LOGLEVEL = logging.WARN
     try:
         opts, args = getopt.getopt(sys.argv[1:],"l:",["log="])
@@ -131,6 +128,10 @@ def logging_init():
                 LOGLEVEL = getattr(logging, arg.upper(), logging.WARNING)
 
     logging.basicConfig(stream=sys.stderr, level=LOGLEVEL)
+    return logging.getLogger(name)
+
+
+logger = logging_init('PUB')
 
 if __name__ == "__main__":
     main()

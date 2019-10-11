@@ -1,7 +1,7 @@
 # STM32 Config
 Emoncms configuration module for raspberry pi based installations of emoncms with an stm32 based emonBase
 
-![module screenshot](stm32config-outline.png)
+![module screenshot](images/stm32config-outline.png)
 [screenshot of Module page displaying STM32 inputs]
 
 ## download
@@ -21,7 +21,7 @@ click the `STM32Config` link in the emoncms sidebar to see the list. eg:
 --- 
 
 # Module Parts
-![module outline](stm32config-pub-sub.png)
+![module outline](images/stm32config-pub-sub.png)
 
 
 ## MQTT
@@ -54,7 +54,7 @@ The original HTTP request to EmonCMS will subscribe to the `Response` topic and 
 ## Returned Data Structures
 The different parts of this system return different data structures:
 
-![module returned data structures](stm32config-module-data-flow.png)
+![module returned data structures](images/stm32config-module-data-flow.png)
 
 
 ## User Interface

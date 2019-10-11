@@ -1,56 +1,94 @@
-import serial, sys, logging, time, traceback, getopt
+import sys, traceback, getopt, logging, serial, json
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+import paho.mqtt.publish as publish
 
-def main():
-    logging_init()
+
+def main(serial_port, mqtt_settings):
+    logger.debug (" ---- START ----")
     
-    port = '/dev/pts/1'
-    s = serial.Serial(port)
+    try:
+        ser = serial_port
+    except NameError:
+        logger.error('no serial port passed')
+        traceback.print_exc(file=sys.stdout)
 
-    print ("-------------- SIMULATED STM32 RESPONSES ---------------")
 
-    if s.isOpen(): s.close()
-    s.open()
+    if ser.isOpen(): ser.close()
+    try:
+        ser.open()
+    except serial.SerialException as err:
+        logger.debug("Serial Connection error: %s", err)
 
-    if s.is_open:
-        logging.debug("CONNECTED on: %s", port)
+    if ser.is_open:
+        logger.debug("Listening...")
         try:
             while True:
-                line = s.readline()
+                line = ser.readline()
                 try :
                     if (line) :
-                        requestId, errorCode, key, prop, value = line.strip().split(':')
-                        response = {
-                            'requestId': requestId,
-                            'errorCode': errorCode,
-                            'key': key,
-                            'prop': prop,
-                            'value': value
-                        }
-                        logging.debug("RECEIVED: %s", response)
+                        processInput(line, mqtt_settings['base_topic'])
                         line = None
-                except Exception as err:
-                    print (err)
-                    pass
+                except KeyboardInterrupt:
+                    logger.debug("Disconnecting...")
+                    traceback.print_exc(file=sys.stdout)
+                except TypeError as err:
+                    logger.debug(err)
+                    traceback.print_exc(file=sys.stdout)
 
         except KeyboardInterrupt:
-            logging.debug("Disconnecting...")
-
-        except Exception:
+            logger.debug("Disconnecting...")
             traceback.print_exc(file=sys.stdout)
+
     else:
-        logging.debug("NOT CONNECTED to: %s", port)
-        
-    s.close()
+        raise serial.SerialException('Serial connection is not open')
+    
+    ser.close()
     print ("------------------------ END ------------------------")
     sys.exit(0)
+
+
+def processInput(line, base_topic):
+    logger.info("Received: %s", line)
+    response = None
+
+    try :
+        # collect serial response data
+        requestId, errorCode, key, prop, value = line.decode("utf-8").strip().split(':')
+    except ValueError as err:
+        logger.error("Error parsing serial data")
+        # logger.debug(err)
+    
+    try:
+        response = {
+            'requestId': requestId,
+            'errorCode': errorCode,
+            'key': key,
+            'prop': prop,
+            'value': value
+        }
+    except UnboundLocalError as err:
+        logger.error("Serial data not in correct format")
+        # logger.debug(err)
+
+    try :
+        # publish response to mqtt
+        topic = base_topic + "response/" + requestId
+        logger.info("Publishing to: %s", topic)
+        payload = json.dumps(response)
+        publish.single(topic, payload=payload)
+
+    except Exception as err:
+        logger.error ("Cannot publish to MQTT")
+        logger.debug (err)
+
+
+
 
 
 
 
 # take loglevel as command line option eg: --log=WARN
-def logging_init():
+def logging_init(name):
     LOGLEVEL = logging.WARN
     try:
         opts, args = getopt.getopt(sys.argv[1:],"l:",["log="])
@@ -60,12 +98,30 @@ def logging_init():
 
     for opt, arg in opts:
         if opt in ("-l", "--log"):
+            arg = arg.upper()
             allowedLogLevels = 'DEBUG,INFO,WARNING,ERROR,CRITICAL'.split(',')
             if any(arg in s for s in allowedLogLevels):
-                LOGLEVEL = getattr(logging, arg.upper(), logging.WARNING)
+                LOGLEVEL = getattr(logging, arg, logging.WARNING)
 
     logging.basicConfig(stream=sys.stderr, level=LOGLEVEL)
+    return logging.getLogger(name)
 
+
+logger = logging_init('READ')
 
 if __name__ == "__main__":
-    main()
+    serial_port = serial.Serial()
+    serial_port.baudrate = 9600
+    serial_port.port = '/dev/ttyUSB0'
+    serial_port.timeout = 60
+
+    mqtt_settings = {
+        'broker': 'localhost',
+        'base_topic': 'stm32config/',
+        'port': 1883,
+        'clientId': 'alone',
+        'client': None
+    }
+    logger.info("Using module default settings for Serial and MQTT connections")
+
+    main(serial_port, mqtt_settings)

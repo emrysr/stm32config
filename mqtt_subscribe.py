@@ -5,78 +5,102 @@ SUPPLY CUSTOM on_message() FUNCTION TO HANDLE RESPONSES
 """
 import serial, sys, logging, time, traceback, getopt
 import paho.mqtt.client as mqtt
+import serial_write as write
 
-broker = 'localhost'
-port = 1883
-topic = 'stm32config/request/#'
-clientId = 'testing4321'
-client = None
-
-def main():
-    # setup the logging scripts
-    logging_init()
+def main(serial_port, mqtt_config):
     # setup the MQTT Client
     client = None
 
     try:
-        logging.debug ("------ MQTT SUBSCRIBE -------")
-
-        client = MQTTClient(clientId, topic)
+        logger.debug ("------ MQTT SUBSCRIBE ------")
+        topic = '#'
+        client = MQTTClient(mqtt_config['clientId'], topic)
         client.on_message = on_message
-        client.on_connect = client.on_connect
-        client.on_disconnect = client.on_disconnect
-        client.on_subscribe = client.on_subscribe
-        client.on_unsubscribe = client.on_unsubscribe
-        client.connect(broker,port)
+        client.user_data_set(serial_port)
+        client.connect(mqtt_config['broker'], mqtt_config['port'])
         try:
             client.loop_forever()
-        except:
-            raise
+        except KeyboardInterrupt as err:
+            logger.info('User Quit...')
+            traceback.print_exc(file=sys.stdout)
 
     except KeyboardInterrupt:
-        logging.info ("Shutdown requested...exiting")
+        logger.info ("Shutdown requested...exiting")
     except Exception as err:
-        logging.info (err)
+        logger.info (err)
         traceback.print_exc(file=sys.stdout)
 
     if client: 
         client.disconnect()
 
-    logging.debug ("------ EXIT ------------------")
+    logger.debug ("------ EXIT ------")
     sys.exit(0)
 
 
-def on_message(client, userdata, message):
+def on_message(client, serial_port, message):
     """
-    Edit this function to react to incomming messages on the subscribed topic
+    MQTT on_message event handler
+        client: mqtt client instance for this callback
+        userdata: as set in user_data_set()
+        message: topic,payload,qos and retain properties
     """
-
-    logging.info("MQTT message received")
-    logging.debug("MQTT on_message():" + "result code " + str(message.payload))
-    logging.debug ("------ START -----")
-    # test incoming command format
-    # todo: test input command pattern
-    command = str(message.payload)
-    # append request id to command
-    command_parts = command.split(':')
-    topic_parts = str(message.topic).split('/')
-
-    # the topic name is the request id
-    request_id = topic_parts[len(topic_parts) - 1]
-    command_parts.insert(0, request_id)
-    command_with_id = ":".join(command_parts)
-    logging.warn ("MQTT message: %s", command_with_id)
-
-    logging.debug ("------ END -------")
+    logger.info("MQTT message received")
+    logger.debug('topic: %s, payload: "%s"', message.topic, message.payload.decode('utf-8'))
+    processInput(message,serial_port)
 
 
+def processInput(message, serial_connection):
+    """
+    Check if received data is in correct format...
+    Write result to serial port as STM32 command. eg:
+        G:VT1:V:  "get VT1 voltage"
+        S:T1:C:-11 "set T1 (Temperature Sensor 1) calibration offset to -11"
+        L:SYS:I: "list all system inputs"
+    """
+    try :
+        # collect mqtt request data
+        action, key, prop, value = message.payload.decode("utf-8").strip().split(':')
+        requestId = message.topic
 
+        # the recieved command must be in 4 parts eg. 1[G]:2[VT1]:3[V]:4[None]
+        # the topic name is the request id
+        topic_parts = str(message.topic).split('/')
+        requestId = topic_parts[len(topic_parts) - 1]
 
+    except ValueError as err:
+        length = len(message.payload.decode('utf-8').split(':'))
+        logger.error("Input data not in correct format. Expecting 4 parts, %s given", length)
+        logger.debug(message.payload)
 
+    try:
+        # map values to command properties
+        request = {
+            'requestId': requestId,
+            'action': action,
+            'key': key,
+            'prop': prop,
+            'value': value
+        }
+        command = ':'.join(request.values())
+        
+    except UnboundLocalError as err:
+        logger.error("Serial data not in correct format")
+        logger.debug(err)
 
+    try:
+        # write request to serial
+        logger.info ('Sending command to serial on "%s"', serial_connection.port)
 
+        if serial_connection.is_open:
+            serial_command = str.encode(command + "\n")
+            logger.info("Written %s bytes" % serial_connection.write(serial_command))
+            logger.debug('SENT:  %s', command)
+        else:
+            logger.debug("NOT CONNECTED to: %s", serial_connection.port)
 
-
+    except Exception as err:
+        logger.error('Error writing to serial')
+        logger.debug(err)
 
 
 
@@ -101,8 +125,8 @@ class MQTTClient(mqtt.Client):
         self.topic = topic
 
     def on_connect(self, client, userdata, flags, rc):
-        logging.warn("MQTT broker connected")
-        logging.debug("MQTT on_connect():" + str(flags) + "result code " + str(rc))
+        logger.warn("MQTT broker connected")
+        logger.debug("MQTT on_connect():" + str(flags) + "result code " + str(rc))
         client.connected_flag=True
         client.disconnect_flag=False
         if self.topic : 
@@ -112,27 +136,27 @@ class MQTTClient(mqtt.Client):
             raise Exception("MQTT topic not supplied")
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
-        logging.info("MQTT topic subscribed")
-        logging.debug("MQTT on_subscribe():" + "result code " + str(mid))
+        logger.info("MQTT topic subscribed")
+        logger.debug("MQTT on_subscribe():" + "result code " + str(mid))
 
     def on_message(self, client, userdata, message):
-        logging.warn("MQTT message received")
-        logging.debug("MQTT on_message():" + "result code " + str(message))
+        logger.warn("MQTT message received")
+        logger.debug("MQTT on_message():" + "result code " + str(message))
 
     def on_unsubscribe(self, client, userdata, mid):
-        logging.info("MQTT topic un-subscribed")
-        logging.debug("MQTT on_unsubscribe():" + "mid " + str(mid))
+        logger.info("MQTT topic un-subscribed")
+        logger.debug("MQTT on_unsubscribe():" + "mid " + str(mid))
 
     def on_disconnect(self, client, userdata, rc):
-        logging.warn("MQTT broker disconnected")
-        logging.debug("MQTT on_disconnect():" + "result code " + str(rc))
+        logger.warn("MQTT broker disconnected")
+        logger.debug("MQTT on_disconnect():" + "result code " + str(rc))
         client.connected_flag=False
         client.disconnect_flag=True
         client.loop_stop()
 
 
 # take loglevel as command line option eg: --log=WARN
-def logging_init():
+def logging_init(name):
     LOGLEVEL = logging.WARN
     try:
         opts, args = getopt.getopt(sys.argv[1:],"l:",["log="])
@@ -142,11 +166,34 @@ def logging_init():
 
     for opt, arg in opts:
         if opt in ("-l", "--log"):
+            arg = arg.upper()
             allowedLogLevels = 'DEBUG,INFO,WARNING,ERROR,CRITICAL'.split(',')
             if any(arg in s for s in allowedLogLevels):
-                LOGLEVEL = getattr(logging, arg.upper(), logging.WARNING)
+                LOGLEVEL = getattr(logging, arg, logging.WARNING)
 
     logging.basicConfig(stream=sys.stderr, level=LOGLEVEL)
+    return logging.getLogger(name)
+
+
+logger = logging_init('MQTT_Sub')
 
 if __name__ == "__main__":
-    main()
+    # serial settings
+    serial_port = serial.Serial()
+    serial_port.baudrate = 9600
+    serial_port.port = '/dev/ttyUSB0'
+    serial_port.timeout = 60
+
+    # mqtt settings
+
+    mqtt_settings = {
+        'broker': 'localhost',
+        'base_topic': 'stm32config/',
+        'port': 1883,
+        'clientId': 'alone',
+        'client': None
+    }
+    
+    logger.info("Using module default settings for Serial and MQTT connections")
+
+    main(serial_port, mqtt_settings)
