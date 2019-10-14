@@ -16,16 +16,16 @@ def main(serial_port, mqtt_settings):
 
     logger.debug("CONNECTED on: %s", serial_port.port)
     
-    
     # begin thread for the serial read
     try:
         p1 = Process(target=read.main, args=(serial_port, mqtt_settings,))
         p1.start()
         p1.join(10)
+    
     except KeyboardInterrupt:
         logger.debug("Disconnecting...")
         traceback.print_exc(file=sys.stdout)
-
+        sys.exit(0)
     serial_port.close()
 
 
@@ -49,7 +49,7 @@ def logging_init(name):
     return logging.getLogger(name)
 
 
-logger = logging_init('ROOT')
+logger = logging_init('SERIAL_LISTEN')
 
 if __name__ == "__main__":
 

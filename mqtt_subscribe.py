@@ -13,8 +13,8 @@ def main(serial_port, mqtt_config):
 
     try:
         logger.debug ("------ MQTT SUBSCRIBE ------")
-        topic = '#'
-        client = MQTTClient(mqtt_config['clientId'], topic)
+        topic = 'request/#'
+        client = MQTTClient(mqtt_config['clientId'], mqtt_config['base_topic'] + topic)
         client.on_message = on_message
         client.user_data_set(serial_port)
         client.connect(mqtt_config['broker'], mqtt_config['port'])
@@ -44,8 +44,8 @@ def on_message(client, serial_port, message):
         userdata: as set in user_data_set()
         message: topic,payload,qos and retain properties
     """
-    logger.info("MQTT message received")
-    logger.debug('topic: %s, payload: "%s"', message.topic, message.payload.decode('utf-8'))
+    logger.info('Received: "%s"', message.payload.decode('utf-8'))
+    logger.debug('topic: %s"', message.topic)
     processInput(message,serial_port)
 
 
@@ -89,11 +89,11 @@ def processInput(message, serial_connection):
 
     try:
         # write request to serial
-        logger.info ('Sending command to serial on "%s"', serial_connection.port)
+        logger.info ('Sending: "%s"', serial_connection.port)
 
         if serial_connection.is_open:
             serial_command = str.encode(command + "\n")
-            logger.info("Written %s bytes" % serial_connection.write(serial_command))
+            logger.debug("Written %s bytes" % serial_connection.write(serial_command))
             logger.debug('SENT:  %s', command)
         else:
             logger.debug("NOT CONNECTED to: %s", serial_connection.port)

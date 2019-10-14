@@ -49,7 +49,7 @@ def logging_init(name):
     return logging.getLogger(name)
 
 
-logger = logging_init('ROOT')
+logger = logging_init('MQTT_LISTEN')
 
 if __name__ == "__main__":
 
