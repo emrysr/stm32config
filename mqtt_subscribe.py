@@ -12,7 +12,6 @@ def main(serial_port, mqtt_config):
     client = None
 
     try:
-        logger.debug ("------ MQTT SUBSCRIBE ------")
         topic = 'request/#'
         client = MQTTClient(mqtt_config['clientId'], mqtt_config['base_topic'] + topic)
         client.on_message = on_message
@@ -89,12 +88,12 @@ def processInput(message, serial_connection):
 
     try:
         # write request to serial
-        logger.info ('Sending: "%s"', serial_connection.port)
+        logger.info ('SERIAL:Sending to: "%s"', serial_connection.port)
 
         if serial_connection.is_open:
             serial_command = str.encode(command + "\n")
-            logger.debug("Written %s bytes" % serial_connection.write(serial_command))
-            logger.debug('SENT:  %s', command)
+            logger.debug("SERIAL:Written %s bytes" % serial_connection.write(serial_command))
+            logger.debug('SERIAL:Sent:  %s', command)
         else:
             logger.debug("NOT CONNECTED to: %s", serial_connection.port)
 
@@ -136,7 +135,7 @@ class MQTTClient(mqtt.Client):
             raise Exception("MQTT topic not supplied")
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
-        logger.info("MQTT topic subscribed")
+        logger.warn("MQTT topic subscribed: %s", self.topic)
         logger.debug("MQTT on_subscribe():" + "result code " + str(mid))
 
     def on_message(self, client, userdata, message):
@@ -175,13 +174,13 @@ def logging_init(name):
     return logging.getLogger(name)
 
 
-logger = logging_init('MQTT_Sub')
+logger = logging_init('MQTT_SUBSCRIBE')
 
 if __name__ == "__main__":
     # serial settings
     serial_port = serial.Serial()
     serial_port.baudrate = 9600
-    serial_port.port = '/dev/ttyUSB0'
+    serial_port.port = '/dev/ttyACM0'
     serial_port.timeout = 60
 
     # mqtt settings

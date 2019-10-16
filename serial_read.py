@@ -4,8 +4,6 @@ import paho.mqtt.publish as publish
 
 
 def main(serial_port, mqtt_settings):
-    logger.debug (" ---- START ----")
-    
     try:
         ser = serial_port
     except NameError:
@@ -47,7 +45,9 @@ def main(serial_port, mqtt_settings):
     sys.exit(0)
 
 
-def processInput(line, base_topic):
+def processInput(line, base_topic) :
+    is_response = True
+
     logger.info("Received: %s", line)
     response = None
 
@@ -58,6 +58,11 @@ def processInput(line, base_topic):
         logger.error("Error parsing serial data")
         # logger.debug(err)
     
+    try :
+        errorCode = int(errorCode)
+    except ValueError as err:
+        is_response = False
+        logger.debug("Serial line is not stm32 response")
     try:
         response = {
             'requestId': requestId,
@@ -71,11 +76,14 @@ def processInput(line, base_topic):
         # logger.debug(err)
 
     try :
+        if(is_response) :
         # publish response to mqtt
-        topic = base_topic + "response/" + requestId
-        logger.info("Publishing to: %s", topic)
-        payload = json.dumps(response)
-        publish.single(topic, payload=payload)
+            topic = base_topic + "response/" + requestId
+            logger.info("Publishing to: %s", topic)
+            payload = json.dumps(response)
+            publish.single(topic, payload=payload)
+        else :
+            logger.debug("Serial data not response")
 
     except Exception as err:
         logger.error ("Cannot publish to MQTT")
@@ -107,12 +115,12 @@ def logging_init(name):
     return logging.getLogger(name)
 
 
-logger = logging_init('READ')
+logger = logging_init('SERIAL_READ')
 
 if __name__ == "__main__":
     serial_port = serial.Serial()
     serial_port.baudrate = 9600
-    serial_port.port = '/dev/ttyUSB0'
+    serial_port.port = '/dev/ttyACM0'
     serial_port.timeout = 60
 
     mqtt_settings = {

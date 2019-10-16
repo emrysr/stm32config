@@ -13,20 +13,7 @@ namespace Emoncms;
 // no direct access
 defined('EMONCMS_EXEC') or die('Restricted access');
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\UriInterface;
-interface RequestFactoryInterface
-{
-    /**
-     * Create a new request.
-     *
-     * @param string $method The HTTP method associated with the request.
-     * @param UriInterface|string $uri The URI associated with the request.
-     * 
-     * @ignore not used because the API used does not respond to HTTP requests
-     */
-    public function createRequest(string $method, $uri): RequestInterface;
-}
+include "Modules/stm32config/Lib/stm32api.php";
 
 /**
  * STM32 Config Methods
@@ -36,12 +23,13 @@ class Stm32Config
     /**
      * test to ensure all is ready
      */
-    public function __construct()
+    public function __construct($mqtt_server)
     {
         $this->ready = true; // once all loaded this is set to true
         $this->stm32api = null; // api class instance to be used by all the methods
         $this->returnCommand = true; // see the system command executed by the api
         $this->returnResponseText = true; // see the unaltered text returned by the api
+        $this->mqtt = $mqtt_server;
     }
 
     /**
@@ -51,10 +39,10 @@ class Stm32Config
      */
     public function getAll()
     {
-        require "Modules/stm32config/Lib/stm32api.php";
-        $this->stm32api = new Stm32api();
+        $this->stm32api = new Stm32api($this->mqtt);
         $api_responseText = $this->stm32api->list();
         $api_response = json_decode($api_responseText, true); // get list of values from SMT32 via python api
+        return $api_responseText;
         if ($api_response) {
             $response = array();
             $response['success'] = $api_response['success'];

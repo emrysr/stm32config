@@ -10,7 +10,6 @@
  * @see http://openenergymonitor.org
  * @source https://github.com/emoncms/stm32config/
  */
-
 // no direct access
 defined('EMONCMS_EXEC') or die('Restricted access');
 
@@ -21,11 +20,11 @@ defined('EMONCMS_EXEC') or die('Restricted access');
  */
 function stm32config_controller()
 {
-    global $route, $session, $path;
+    global $route, $session, $path, $mqtt_server;
     $result = false;
     $v = time();
     require "Modules/stm32config/stm32config_model.php";
-    $config = new Emoncms\Stm32config();
+    $config = new Emoncms\Stm32config($mqtt_server);
 
     if (!$session['write']) return false;
 

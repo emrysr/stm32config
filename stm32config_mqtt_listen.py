@@ -56,7 +56,7 @@ if __name__ == "__main__":
     # serial settings
     serial_port = serial.Serial()
     serial_port.baudrate = 9600
-    serial_port.port = '/dev/pts/1'
+    serial_port.port = '/dev/ttyACM0'
     serial_port.timeout = 60
 
     # mqtt settings

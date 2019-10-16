@@ -1,63 +1,88 @@
 <?php
 namespace Emoncms;
+/**
+ * You can send serial commands to the stm32 chip via MQTT
+ *   - commands are sent to a 'request/[id]' topic
+ *   - the stm32 chip responds by posting to the 'response/[id]' topic
+ * 
+ * this class will simplify the MQTT opperations into methods
+ * the methods will pair up to this module's api endpoints in the controller
+ * eg:
+ *  Requesting the enpoint "stm32config/list.json" calls a model function :
+ *  Emoncms\Stm32config\getAll() then calls the api function : 
+ *  $this->stm32api->list();
+ */
 
 class Stm32api
 {
-    public function __construct()
+    public function __construct($mqtt_server)
     {
-        $this->connected = false;
-        $this->ready = true;
-        $this->connection = false;
-// @todo: this will need to be set somewhere??
-        $this->api = realpath('../stm32config/stm32api.py');
-        $this->python = 'python2';
-        $this->connect();
-    }
-    /**
-     * get connection id
-     *
-     * @return void
-     */
-    private function connect()
-    {
-        // connect to STM32 return connection id
-        $this->connection = trim(`$this->python $this->api --action=CONNECT`);
-        return $this->connection;
+        $this->mqtt_server = $mqtt_server;
     }
 
     /**
-     * get list of data
+     * Return list of data from mqtt response topic
+     * 
+     * send request command to mqtt
+     * subscribe to response topic
+     * return the next message on that topic
      *
      * @return void
      */
     public function list()
     {
-        if(!$this->connection) {
-            $this->connect();
-        }
-        // @todo: while loop to test for connection until connected
+        $id = uniqid();
+        $response = new \Mosquitto\Client('list response '. $id);
+        $request = new \Mosquitto\Client('list request '. $id);
+        // $request->onLog('var_dump');
+        // $response->onLog('var_dump');
+        $base_topic = 'stm32config/';
+        $command = 'G:SYS:LIST:';
+        $keepalive = 50;
+        $mid = 0;
+        $connected = false;
 
-        $command = <<<eot
-$this->python $this->api --connection=$this->connection --action=LIST --json
-eot;
-        $response = `$command`;
+        $request->onConnect(function($rc, $message) use(&$request, $base_topic, $id, $command, &$mid, &$connected) {
+            if($rc===0) {
+                $connected = true;
+                $topic = $base_topic . 'request/' . $id;
+                $payload = $command;
+                $mid = $request->publish($topic, $payload);
+            } else {
+                echo $message;
+            }
+            $request->disconnect();
+        });
+
+        $response->onConnect(function($rc, $message) use(&$response, $base_topic, $id) {
+            echo 'response connected';
+            $topic = $base_topic .'request/'.$id;
+            if($rc===0) {
+                $response->subscribe($topic, 1);
+            }
+        });
+
+        $response->onMessage(function(\Mosquitto\Message $message) use(&$response) {
+            $response->disconnect();
+            echo 'on response message';
+            return $message->payload;
+        });
+
+        $request->connect($this->mqtt_server['host'], $this->mqtt_server['port'], $keepalive);
+        $response->connect($this->mqtt_server['host'], $this->mqtt_server['port'], $keepalive);
         
-        if($response) {
-            $tmp = json_decode($response, true);
-            $tmp['command'] = $command;
-            $response = json_encode($tmp);
-        
-            return $response;
-
-        } else {
-            return json_encode(array(
-                'message' => 'API call unsuccessful',
-                'success' => false,
-                'command' => $command
-            ));
+        $start = time();
+        while((time()-$start)<5.0) {
+            if($connected) {
+                $response->loop(10); 
+                if ((time()-$start)>=3.0) {
+                    $response->disconnect();
+                }
+            }
+            usleep(50000);
         }
 
-
+        $request->loopForever();
     }
 
     public function set($params) {
