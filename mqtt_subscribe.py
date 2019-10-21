@@ -16,6 +16,7 @@ def main(serial_port, mqtt_config):
         client = MQTTClient(mqtt_config['clientId'], mqtt_config['base_topic'] + topic)
         client.on_message = on_message
         client.user_data_set(serial_port)
+        client.username_pw_set(username= mqtt_config['user'], password= mqtt_config['password'])
         client.connect(mqtt_config['broker'], mqtt_config['port'])
         try:
             client.loop_forever()
@@ -128,11 +129,18 @@ class MQTTClient(mqtt.Client):
         logger.debug("MQTT on_connect():" + str(flags) + "result code " + str(rc))
         client.connected_flag=True
         client.disconnect_flag=False
-        if self.topic : 
-            client.subscribe(self.topic, 1)
-        else :
+        if (rc == 0):
+            if self.topic : 
+                client.subscribe(self.topic, 1)
+            else :
+                client.disconnect()
+                raise Exception("MQTT topic not supplied")
+        if (rc == 4):
             client.disconnect()
-            raise Exception("MQTT topic not supplied")
+            raise Exception("MQTT bad username or password")
+        if (rc == 5):
+            client.disconnect()
+            raise Exception("Not authorised to use MQTT topic")
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
         logger.warn("MQTT topic subscribed: %s", self.topic)
@@ -190,7 +198,9 @@ if __name__ == "__main__":
         'base_topic': 'stm32config/',
         'port': 1883,
         'clientId': 'alone',
-        'client': None
+        'client': None,
+        'user': 'emonpi',
+        'password': 'emonpimqtt2016'
     }
     
     logger.info("Using module default settings for Serial and MQTT connections")
