@@ -1,4 +1,4 @@
 vendor/
 .vscode
 __pycache__/
-.pyc
+*.pyc
