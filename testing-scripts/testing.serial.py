@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 simple testing of reading and parsing serial data
 """

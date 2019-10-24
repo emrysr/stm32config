@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #!/usr/bin/python
 """ Interact with the STM32 chip and return responses
 

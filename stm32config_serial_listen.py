@@ -65,7 +65,9 @@ if __name__ == "__main__":
         'base_topic': 'stm32config/',
         'port': 1883,
         'clientId': 'alone',
-        'client': None
+        'client': None,
+        'user': 'emonpi',
+        'password': 'emonpimqtt2016'
     }
     
     logger.info("Using default settings for Serial and MQTT connections")

@@ -15,9 +15,9 @@ namespace Emoncms;
 
 class Stm32api
 {
-    public function __construct($mqtt_server)
+    public function __construct($mqtt_broker_settings)
     {
-        $this->mqtt_server = $mqtt_server;
+        $this->mqtt = $mqtt_broker_settings;
     }
 
     /**
@@ -68,8 +68,11 @@ class Stm32api
             return $message->payload;
         });
 
-        $request->connect($this->mqtt_server['host'], $this->mqtt_server['port'], $keepalive);
-        $response->connect($this->mqtt_server['host'], $this->mqtt_server['port'], $keepalive);
+        $request->setCredentials($this->mqtt['user'],$this->mqtt['password']);
+        $response->setCredentials($this->mqtt['user'],$this->mqtt['password']);
+
+        $request->connect($this->mqtt['host'], $this->mqtt['port'], $keepalive);
+        $response->connect($this->mqtt['host'], $this->mqtt['port'], $keepalive);
         
         $start = time();
         while((time()-$start)<5.0) {

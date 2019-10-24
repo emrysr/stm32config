@@ -1,7 +1,5 @@
 import sys, traceback, getopt, logging, serial, json
-
-import paho.mqtt.publish as publish
-
+import mqtt_publish
 
 def main(serial_port, mqtt_settings):
     try:
@@ -9,7 +7,6 @@ def main(serial_port, mqtt_settings):
     except NameError:
         logger.error('no serial port passed')
         traceback.print_exc(file=sys.stdout)
-
 
     if ser.isOpen(): ser.close()
     try:
@@ -24,7 +21,7 @@ def main(serial_port, mqtt_settings):
                 line = ser.readline()
                 try :
                     if (line) :
-                        processInput(line, mqtt_settings['base_topic'])
+                        processInput(line, mqtt_settings)
                         line = None
                 except KeyboardInterrupt:
                     logger.debug("Disconnecting...")
@@ -45,7 +42,9 @@ def main(serial_port, mqtt_settings):
     sys.exit(0)
 
 
-def processInput(line, base_topic) :
+def processInput(line, mqtt_settings) :
+    """ take line of serial input and check validity before publishing response via mqtt
+    """
     is_response = True
 
     logger.info("Received: %s", line)
@@ -75,24 +74,22 @@ def processInput(line, base_topic) :
         logger.error("Serial data not in correct format")
         # logger.debug(err)
 
-    try :
-        if(is_response) :
-        # publish response to mqtt
-            topic = base_topic + "response/" + requestId
-            logger.info("Publishing to: %s", topic)
-            payload = json.dumps(response)
-            publish.single(topic, payload=payload)
-        else :
-            logger.debug("Serial data not response")
+# try :
+    if(is_response) :
+    # publish response to mqtt
+        topic = mqtt_settings['base_topic'] + "response/" + requestId
+        payload = json.dumps(response)
 
-    except Exception as err:
-        logger.error ("Cannot publish to MQTT")
-        logger.debug (err)
+        logger.info("Publishing to: %s", topic)
+        logger.debug("payload: %s", payload)
 
+        mqtt_publish.main(mqtt_settings, topic, payload)
+    else :
+        logger.debug("Serial data not response")
 
-
-
-
+# except Exception as err:
+#     logger.error ("Cannot publish to MQTT")
+#     logger.debug (err)
 
 
 # take loglevel as command line option eg: --log=WARN

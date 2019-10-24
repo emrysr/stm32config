@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """ 
 Thread based version to allow simultaneous connections to the serial port and MQTT server
 """

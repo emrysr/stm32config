@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """ class based version of testing.serial.py"""
 
 import serial, json

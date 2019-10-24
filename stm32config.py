@@ -18,7 +18,7 @@ def main():
     # serial settings
     serial_port = serial.Serial()
     serial_port.baudrate = 9600
-    serial_port.port = '/dev/ttyACM0'
+    serial_port.port = '/dev/ttyACM1'
     serial_port.timeout = 60
 
     # mqtt settings
@@ -27,7 +27,9 @@ def main():
         'base_topic': 'stm32config/',
         'port': 1883,
         'clientId': 'alone',
-        'client': None
+        'client': None,
+        'user': 'emonpi',
+        'password': 'emonpimqtt2016'
     }
     
     try:

@@ -81,8 +81,14 @@ def processInput(message, serial_connection):
             'prop': prop,
             'value': value
         }
-        command = ':'.join(request.values())
-        
+        requestParts = []
+        requestParts.append(request["requestId"])
+        requestParts.append(request["action"])
+        requestParts.append(request["key"])
+        requestParts.append(request["prop"])
+        requestParts.append(request["value"])
+
+        command = ':'.join(requestParts)
     except UnboundLocalError as err:
         logger.error("Serial data not in correct format")
         logger.debug(err)
@@ -92,9 +98,10 @@ def processInput(message, serial_connection):
         logger.info ('SERIAL:Sending to: "%s"', serial_connection.port)
 
         if serial_connection.is_open:
-            serial_command = str.encode(command + "\n")
+            serial_command = command.encode('ascii') + "\n"
+            # serial_command = str.encode(command + "\n")
             logger.debug("SERIAL:Written %s bytes" % serial_connection.write(serial_command))
-            logger.debug('SERIAL:Sent:  %s', command)
+            logger.debug("SERIAL:Sent:  %s", command)
         else:
             logger.debug("NOT CONNECTED to: %s", serial_connection.port)
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import serial, sys, logging, traceback, getopt, threading
 
 from time import sleep

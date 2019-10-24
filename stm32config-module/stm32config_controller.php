@@ -20,11 +20,11 @@ defined('EMONCMS_EXEC') or die('Restricted access');
  */
 function stm32config_controller()
 {
-    global $route, $session, $path, $mqtt_server;
+    global $route, $session, $path, $settings;
     $result = false;
     $v = time();
     require "Modules/stm32config/stm32config_model.php";
-    $config = new Emoncms\Stm32config($mqtt_server);
+    $config = new Emoncms\Stm32config($settings['mqtt']);
 
     if (!$session['write']) return false;
 
