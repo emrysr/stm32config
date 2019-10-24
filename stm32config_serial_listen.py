@@ -49,7 +49,7 @@ def logging_init(name):
     return logging.getLogger(name)
 
 
-logger = logging_init('SERIAL_LISTEN')
+logger = logging_init(__name__)
 
 if __name__ == "__main__":
 

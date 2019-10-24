@@ -140,7 +140,7 @@ def logging_init(name):
     return logging.getLogger(name)
 
 
-logger = logging_init('MQTT_PUBLISH')
+logger = logging_init(__name__)
 
 if __name__ == "__main__":
     # mqtt settings

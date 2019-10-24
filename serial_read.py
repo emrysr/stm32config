@@ -112,7 +112,7 @@ def logging_init(name):
     return logging.getLogger(name)
 
 
-logger = logging_init('SERIAL_READ')
+logger = logging_init(__name__)
 
 if __name__ == "__main__":
     serial_port = serial.Serial()

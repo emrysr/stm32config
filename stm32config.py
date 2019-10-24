@@ -79,7 +79,7 @@ def logging_init(name):
     return logging.getLogger(name)
 
 
-logger = logging_init('ROOT')
+logger = logging_init(__name__)
 
 if __name__ == "__main__":
     main()
