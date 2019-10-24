@@ -98,7 +98,7 @@ def processInput(message, serial_connection):
         logger.info ('SERIAL:Sending to: "%s"', serial_connection.port)
 
         if serial_connection.is_open:
-            serial_command = command.encode('ascii') + "\n"
+            serial_command = "%s\n" % command.encode('ascii')
             # serial_command = str.encode(command + "\n")
             logger.debug("SERIAL:Written %s bytes" % serial_connection.write(serial_command))
             logger.debug("SERIAL:Sent:  %s", command)

@@ -4,6 +4,8 @@ simple testing of reading and parsing serial data split by ":"
 """
 
 import serial
+from ports import serial_ports
+
 def main(port) :
     if not port: 
         port = "/dev/ttyAMA0"
@@ -26,4 +28,6 @@ def main(port) :
             buf.extend(data)
 
 if __name__ == "__main__" :
-    main('/dev/ttyUSB1')
+    ports = serial_ports()
+    print ("Reading from port %s" % ports[0])
+    main(ports[0])
