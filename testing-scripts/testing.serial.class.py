@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+""" class based version of sending and receiving """
+
 import serial,time
 
 class Connection:
@@ -22,7 +24,7 @@ class SerialRead:
         print('reading...')
         return self.serial.read()
 
- try:
+try:
     #serialConnection = Connection()
     serialConnection = Connection('/dev/ttyACM0').serial
     w = SerialWrite(serialConnection)

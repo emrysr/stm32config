@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" class based version of testing.serial.py"""
+""" class based version of reading serial line"""
 
 import serial, json
 

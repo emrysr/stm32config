@@ -49,7 +49,7 @@ def logging_init(name):
     return logging.getLogger(name)
 
 
-logger = logging_init('MQTT_LISTEN')
+logger = logging_init(__name__)
 
 if __name__ == "__main__":
 
@@ -73,3 +73,4 @@ if __name__ == "__main__":
     logger.info("Using default settings for Serial and MQTT connections")
 
     main(serial_port, mqtt_settings)
+    

@@ -37,7 +37,16 @@ def logging_init(name):
     logging.basicConfig(stream=sys.stderr, level=LOGLEVEL)
     return logging.getLogger(name)
 
-logger = logging_init('WRITE')
+logger = logging_init(__name__)
 
 if __name__ == "__main__":
     logger.info("Module used to write serial data. Call write() with Serial object and message")
+    logger.debug("Using this module as standalone. default settings applied.")
+    
+    # serial settings
+    serial_port = serial.Serial()
+    serial_port.baudrate = 9600
+    serial_port.port = '/dev/ttyUSB0'
+    serial_port.timeout = 60
+    message = "G:SYS:HELLO"
+    send(serial_port, message)
