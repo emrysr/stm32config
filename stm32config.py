@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import serial, sys, logging, traceback, getopt, time, os
 
 # from multiprocessing import Process
