@@ -33,23 +33,30 @@ Using `MQTT` with this module has another advantage in that [EmonCMS](https://gi
 
 This makes is very easy to forward any STM32 serial data to [EmonCMS](https://github.com/emoncms/emoncms)
 
+
 ## Serial Data
-The STM32 chip input/output/control parts will be referred to as `KEYS`.
+The hardware serial connection is between UART1 on the STM32 and the UART port on the rPi.
 
-All the `KEYS` have different properties that can be acted on using a short name (listed below).
+The serial data is divided into Codes, Get/Set Flag, Keys, Properties, and Values.
 
-Here are some examples and the serial command sent to the chip (using action and key short names):
+- *Code.* This is a way to help organise the set of commands. The code is sent with the commands and is received with the response, acting as a parity check.
+- *Get/Set Flag.* This divides a command into either a request for data (GET) or setting change (SET), such as setting the RTC time.
+- *Keys.* The STM32 chip has input/output ports and devices, *KEYS* represent Current Transformers, MBUS connections, Input/Outputs and any other sensors.
+- *Properties*. The specific setting of a device. For example, a CT can have Set the burden resistor value, or which VT it's assigned to. Or a VT can have Get the state, i.e. whether or not it is connected.
+- *Value*. The value of the data, could be anything, boolean, integer, float or JSON string for example.
+
+
+All the *KEYS* and *PROPERTIES* have Short Names, listed below.
+
+Here are some examples of the serial command sent to the chip (using action and key short names):
 eg: 
--   GET -> CT1 -> Real Power `G:CT1:RP:`
+-   GET -> CT1 -> Real Power `G:CT1:RP`
 -   SET -> VT1 -> Phase = 2.52 `G:CT1:RP:2.52`
 
-
-## Serial connection
-The STM32 chip will commuicate via UART Serial Connection. As the python script receives serial data,
+As the python script receives serial data, 
 the feed is processed and publish the result to a `Response` topic that matches the original request id.
 
 The original HTTP request to EmonCMS will subscribe to the `Response` topic and return the results to the user.
-
 
 ## Returned Data Structures
 The different parts of this system return different data structures:
@@ -78,11 +85,9 @@ The `vue.js` template requires `JSON` data given to it with the following `succe
 ```
 ---
 # Short Names:
-To simplify the serial communications we have used "Short Names" to describe elements in the system.
+To keep the serial comms efficient we have used "Short Names" to describe elements in the system. Listed [HERE](https://docs.google.com/spreadsheets/d/1pd3A7FxAWuz996i6_QErqlbv7VB_zVkI_od6FIu09HU/edit?usp=sharing).
 
-To inturperate any serial instructions you should refer to the tables below:
-
-## STM32 Instructions
+To interpret a serial instruction refer to the example table below:
 
 | Short Name | Instruction  | Description                  |
 | ---------- |--------------|------------------------------|
@@ -96,9 +101,7 @@ To inturperate any serial instructions you should refer to the tables below:
 
 ## Keys
 
-Within the context of this module the name `KEYS` is given to refer to the STM32 Inputs, Outputs or Addons.
-
-No `Short Name` is used to refer to keys.
+Within the context of this module the name `KEYS` is given to refer to the STM32 Inputs, Outputs or any other Devices.
 
 | Key       | TYPE    |
 |-----------|---------|
